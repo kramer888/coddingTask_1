@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>test</title>
+    
+</head>
+<body>
+    Statuses:
+<select data-bind="options: statusesInfo, optionsValue: 'id', optionsText: 'name', value: selectedOption, event: { change: selectionChanged }, valueUpdate: 'afterChange'">
+</select>
+
+    <div data-bind="visible: selectedOption() != -1">
+        <h3>Positions</h3>
+    <table style="border: 1px solid #000"> 
+        <thead>
+            <tr>
+                <th>Status Name</th>
+                <th>top</th>
+                <th>left</th>
+            </tr>
+        </thead>  
+        <tbody data-bind="foreach: availablePositions">
+            <tr>
+                <td data-bind="text: name"></td>
+                <td data-bind="text: top"></td>
+                <td data-bind="text: left"></td>
+            </tr>
+        </tbody>
+    </table>
+        </div>
+    <script src="Scripts/jquery-2.1.1.min.js"></script>
+    <script src="http://ajax.aspnetcdn.com/ajax/knockout/knockout-3.0.0.js"></script>
+    <script type="text/javascript">
+        var data = {
+            "transitions": {
+                "new": "open",
+                "open": "new,in-progress,resolved,closed",
+                "in-progress": "open,resolved,closed",
+                "resolved": "closed,reopened",
+                "reopened": "closed,resolved,in-progress",
+                "closed": "reopened"
+            },
+            "names": {
+                "new": "New",
+                "open": "Open",
+                "in-progress": "In Progress",
+                "resolved": "Resolved",
+                "reopened": "Reopened",
+                "closed": "Closed"
+            },
+            "positions": {
+                "new": {
+                    "top": 100,
+                    "left": 500
+                },
+                "open": {
+                    "top": 200,
+                    "left": 500
+                },
+                "in-progress": {
+                    "top": 400,
+                    "left": 250
+                },
+                "resolved": {
+                    "top": 300,
+                    "left": 500
+                },
+                "reopened": {
+                    "top": 500,
+                    "left": 500
+                },
+                "closed": {
+                    "top": 400,
+                    "left": 750
+                }
+            },
+            "container": "workflow-2"
+        }
+        
+        function viewModelWorkflow(data) {
+            var self = this;
+            var noStatText = "---Select Status---";
+            var transitionsHash = [];
+            var positions = [];
+
+            var statusInfo = function (id, name, top, left) {
+                this.id = ko.observable(id);
+                this.name = ko.observable(name);
+                //this.transitions = ko.observable(trans);
+                //this.top = ko.observable(top);
+                //this.left = ko.observable(left);
+            }
+            var initVM = function () {
+                self.statusesInfo.push(new statusInfo(-1, noStatText));
+                $.each(data.names, function (k, v) {
+                    //var curTrans = data.transitions[k].split(',');
+                    //var curPos = data.positions[k];
+                    //o = new statusInfo(k, v, curTrans, curPos.top, curPos.left);
+                    o = new statusInfo(k, v);
+                    self.statusesInfo.push(o);
+                });
+                self.selectedOption(self.statusesInfo()[0].id());
+
+                $.each(data.transitions, function (k, v) {
+                    transitionsHash[k] = v;
+                    positions[k] = data.positions[k];
+                });
+            }
+            var updatePositions = function () {
+                self.availablePositions([]);
+                // update positions
+                var resultTrans = transitionsHash[self.selectedOption()].split(',');
+                $.each(resultTrans, function (keyTrans, valTrans) {
+                    var resultPos = [];
+                    self.availablePositions.push({ name: valTrans, top: positions[valTrans].top, left: positions[valTrans].left });
+                });
+            }
+
+            this.selectedOption = ko.observable("");
+            this.availablePositions = ko.observableArray([]);
+            this.statusesInfo = ko.observableArray([]);          
+            this.selectionChanged = function (e, v) {
+                if (this.selectedOption() != -1) {
+                    updatePositions();
+                }
+            }
+            initVM();
+        }
+
+        $(document).ready(function () {
+            // getting data info from the server...
+            var vm = new viewModelWorkflow(data);
+            ko.applyBindings(vm);
+        });
+    </script>
+</body>
+</html>
