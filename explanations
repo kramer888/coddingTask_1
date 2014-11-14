@@ -1,0 +1,19 @@
+1. I used knockout.js for the data binding.
+There's no particular reason that I chose that lib (I could have just as well use Angular, Ember etc')
+
+2. The workflow starts by getting the info from the server (the JSON data), and then populating the dropdown list with
+all the relevant options, which are the "bug status" options i.e. new, open, resolved etc'
+
+3. When the user choses an 'status option' from the drop down list, 
+I populate a table with the relevant transitions for that status.
+
+4. Each data entity i.e. 'status', 'transition' and 'position' is related to each other so I could have used one single object
+which would hold all the interrelated data but I prefered to seperate it
+and created a "hash" for the positions and for the transitions for easy access for when I need to get a value (like a dictionary).
+
+
+NOTE: I didn't get what's the meaning of the 'top' and 'left' properties.
+I sent a question but I was told that's part of the test.
+If I don't know what's the meaning of a property, I can't use it and.
+The property "top" could mean 
+
